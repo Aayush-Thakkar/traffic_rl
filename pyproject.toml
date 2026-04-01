@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "traffic-env"
+version = "0.1.0"
+description = "Smart Traffic Light Controller - OpenEnv RL Environment"
+requires-python = ">=3.11"
+dependencies = [
+    "openenv-core>=0.2.0",
+    "fastapi",
+    "uvicorn",
+]
+
+[project.scripts]
+server = "server.app:main"
