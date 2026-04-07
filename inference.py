@@ -9,6 +9,10 @@ MODEL_NAME   = os.getenv("MODEL_NAME", "gpt-4o-mini")
 HF_TOKEN     = os.getenv("HF_TOKEN", "")
 ENV_URL      = os.getenv("ENV_URL", "http://127.0.0.1:8000")
 
+# --- API KEY VALIDATION ---
+if not HF_TOKEN:
+    raise SystemExit("[ERROR] HF_TOKEN is not set. Export your API key before running inference.")
+
 client = OpenAI(api_key=HF_TOKEN, base_url=API_BASE_URL)
 
 # --- LOGGING (mandatory format) ---
@@ -37,6 +41,14 @@ def step_env(lane: int):
 def ask_llm(observation: dict) -> int:
     lanes = observation["observation"]["lanes"]
     total_wait = observation["observation"]["total_wait"]
+    surge_active = observation["observation"].get("surge_active", False)
+    surge_lanes = observation["observation"].get("surge_lanes", [])
+
+    lane_names = ["North", "South", "East", "West"]
+    surge_context = ""
+    if surge_active and surge_lanes:
+        affected = " and ".join(f"{lane_names[i]} ({i})" for i in surge_lanes)
+        surge_context = f"\n⚠️  RUSH HOUR ACTIVE — {affected} lanes have emergency vehicle surge. Prioritize these lanes."
 
     prompt = f"""You are a traffic light controller AI.
 Current traffic state:
@@ -44,7 +56,7 @@ Current traffic state:
 - South lane (1): {lanes[1]} cars waiting
 - East lane  (2): {lanes[2]} cars waiting
 - West lane  (3): {lanes[3]} cars waiting
-- Total waiting: {total_wait} cars
+- Total waiting: {total_wait} cars{surge_context}
 Which lane should get the green light RIGHT NOW?
 Reply with ONLY a single digit: 0, 1, 2, or 3."""
 
@@ -63,7 +75,9 @@ Reply with ONLY a single digit: 0, 1, 2, or 3."""
         pass
 
     # Fallback — busiest lane
-    return lanes.index(max(lanes))
+    fallback = lanes.index(max(lanes))
+    print(f"[FALLBACK] LLM response unparseable — defaulting to argmax lane {fallback}", flush=True)
+    return fallback
 
 # --- TASK RUNNER ---
 def run_task(task_id: str, max_steps: int):

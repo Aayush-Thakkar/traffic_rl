@@ -129,6 +129,20 @@ Random baseline averages ~37.9 cars waiting per step on task2_medium.
 
 ---
 
+## Design Tradeoff: Stateless Decision Making
+
+The agent operates purely on current state, mirroring how many real traffic controllers work today. Adding a sliding window of historical lane counts to the prompt is a natural next step that would enable trend detection and proactive signal switching.
+
+This was an intentional choice — real-world traffic signals react to present conditions without access to historical queues. Keeping the agent stateless means shorter prompts, faster inference, and simpler architecture with no state management overhead.
+
+### Future Work
+
+- Add a sliding window of the last 3–5 steps of lane counts to the LLM prompt
+- This enables trend detection (e.g. a lane growing steadily) and proactive signal switching before a lane overflows
+- Tradeoff: longer prompts increase token usage and add slight latency — manageable with efficient models like Llama 3.1 8B
+
+---
+
 ## License
 
 MIT — see [LICENSE](LICENSE)

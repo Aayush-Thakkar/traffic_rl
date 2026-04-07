@@ -10,6 +10,8 @@ class TrafficObservation(Observation):
     lanes: List[int]             # Cars waiting e.g. [3, 0, 5, 2]
     total_wait: int              # Sum of all waiting cars
     message: str                 # Human readable feedback
+    surge_active: bool = False   # True during rush hour windows
+    surge_lanes: List[int] = []  # Lanes currently experiencing surge
 
 class TrafficState(State):
     """Episode metadata."""

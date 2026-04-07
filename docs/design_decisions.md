@@ -80,3 +80,31 @@ These three together give a more complete picture of agent quality than total re
 ## 8. Why 40% Car Arrival Probability?
 
 **Reason:** At 40%, expected arrivals per step are `4 × 0.4 = 1.6 cars`, while the agent can only clear 1. This creates mild pressure — queues will grow if the agent is careless, but a smart agent can keep them near zero. Lower probability would make the task trivial; higher would make it impossible to keep queues at zero.
+
+---
+
+## 9. Decision: Stateless vs Stateful Control
+
+### Context
+
+A key architectural question was whether the agent should make decisions based only on the current lane snapshot, or whether it should also have access to recent history — e.g. the last 3–5 steps of lane counts.
+
+### Decision
+
+The current system uses stateless decision-making. Every prompt contains only the current timestep’s lane counts. No historical data is passed to the agent.
+
+### Rationale
+
+- Lower latency — shorter prompts mean faster LLM responses, keeping inference well within the 20-minute runtime budget
+- Simpler architecture — no sliding window buffer to maintain, no state to carry between steps
+- Easier debugging and interpretability — each decision is fully explained by the current observation alone
+- Aligns with real-world reactive systems — most deployed traffic controllers today operate on present sensor readings, not historical queues
+
+### Tradeoffs
+
+- Cannot detect trends — a lane growing by 1 car every step looks the same as a stable lane at the same count
+- Misses opportunities for proactive control — the agent reacts to overflow rather than anticipating it
+
+### Future Extension
+
+Adding a sliding window of the last 3–5 timesteps to the prompt is the natural next step. This would give the agent enough context to detect gradual buildup and switch signals before a lane overflows. With models like Llama 3.1 8B, the additional token cost is manageable and the expected improvement in anticipatory behavior makes it a worthwhile upgrade.
