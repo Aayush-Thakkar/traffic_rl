@@ -10,17 +10,14 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 # Copy requirements first (for caching)
 COPY requirements.txt .
 
-# Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Install dependencies (includes OpenEnv from GitHub)
+RUN pip install --no-cache-dir --timeout=300 -r requirements.txt
 
 # Copy entire project
 COPY . .
 
-# Install OpenEnv from local clone
-RUN pip install --no-cache-dir -e OpenEnv/
-
-# Expose port 8000
-EXPOSE 8000
+# Expose port 7860 (required for HuggingFace Spaces)
+EXPOSE 7860
 
 # Run the server
-CMD ["uvicorn", "traffic_env.server.app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "traffic_env.server.app:app", "--host", "0.0.0.0", "--port", "7860"]

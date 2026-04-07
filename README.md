@@ -1,3 +1,11 @@
+---
+title: Smart Traffic Controller
+emoji: 🚦
+colorFrom: blue
+colorTo: green
+sdk: docker
+pinned: false
+---
 # Smart Traffic Controller — RL + LLM
 
 An AI-powered traffic light controller for a 4-way intersection. Supports two agent types:
