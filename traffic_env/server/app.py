@@ -6,8 +6,47 @@ from traffic_env.server.environment import TrafficEnvironment
 from traffic_env.tasks import ALL_TASKS, Task1Easy, Task2Medium, Task3Hard
 import random
 
-# Core OpenEnv app
-app = create_fastapi_app(TrafficEnvironment, TrafficAction, TrafficObservation)
+# Persistent environment instance
+_env = TrafficEnvironment()
+
+# Create a base app FIRST and register our routes before OpenEnv adds its own
+app = FastAPI(title="OpenEnv Environment HTTP API", version="1.0.0")
+
+@app.post("/reset")
+def reset():
+    obs = _env.reset()
+    return {
+        "observation": {
+            "lanes": obs.lanes,
+            "total_wait": obs.total_wait,
+            "message": obs.message,
+            "surge_active": obs.surge_active,
+            "surge_lanes": obs.surge_lanes,
+        },
+        "reward": obs.reward,
+        "done": obs.done,
+    }
+
+@app.post("/step")
+def step(request: dict):
+    lane = request.get("action", {}).get("lane", 0)
+    obs = _env.step(TrafficAction(lane=lane))
+    return {
+        "observation": {
+            "lanes": obs.lanes,
+            "total_wait": obs.total_wait,
+            "message": obs.message,
+            "surge_active": obs.surge_active,
+            "surge_lanes": obs.surge_lanes,
+        },
+        "reward": obs.reward,
+        "done": obs.done,
+    }
+
+# Now let OpenEnv register its remaining routes (/health, /schema, /metadata, /mcp etc)
+from openenv.core.env_server.http_server import HTTPEnvServer
+_server = HTTPEnvServer(TrafficEnvironment, TrafficAction, TrafficObservation)
+_server.register_routes(app)
 
 # --- / root endpoint ---
 @app.get("/", response_class=HTMLResponse)
