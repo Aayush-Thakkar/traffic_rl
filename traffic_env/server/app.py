@@ -151,3 +151,11 @@ def baseline():
         })
 
     return JSONResponse(results)
+# --- START SERVER ---
+if __name__ == "__main__":
+    import uvicorn
+    import os
+    
+    port = int(os.getenv("PORT", "8000"))
+    print(f"[DEBUG] Starting uvicorn on port {port}", flush=True)
+    uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")
