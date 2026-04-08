@@ -19,6 +19,5 @@ COPY . .
 # Expose port 8000 (required by OpenEnv validator)
 EXPOSE 8000
 
-# Run the server (PORT env var allows override, defaults to 8000)
-# Force port 8000 (judges expect this locally)
-CMD ["uvicorn", "traffic_env.server.app:app", "--host", "0.0.0.0", "--port", "8000"]
+# CRITICAL: Run server on port 8000 (NOT 7860)
+CMD ["python", "-c", "import uvicorn; from traffic_env.server.app import app; uvicorn.run(app, host='0.0.0.0', port=8000)"]
