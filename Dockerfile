@@ -16,8 +16,8 @@ RUN pip install --no-cache-dir --timeout=300 -r requirements.txt
 # Copy entire project
 COPY . .
 
-# Expose port 8000 (required by OpenEnv validator)
+# Expose port 8000 (OpenEnv validator default)
 EXPOSE 8000
 
-# CRITICAL: Run server on port 8000 (NOT 7860)
-CMD ["python", "-c", "import uvicorn; from traffic_env.server.app import app; uvicorn.run(app, host='0.0.0.0', port=8000)"]
+# PORT env var is set by HuggingFace to 7860, defaults to 8000 for validator
+CMD ["sh", "-c", "uvicorn traffic_env.server.app:app --host 0.0.0.0 --port ${PORT:-8000}"]

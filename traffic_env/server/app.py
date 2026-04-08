@@ -151,11 +151,3 @@ def baseline():
         })
 
     return JSONResponse(results)
-import os
-import uvicorn
-
-# ... rest of your FastAPI code ...
-
-if __name__ == "__main__":
-    port = int(os.getenv("PORT", "8000"))  # Default to 8000, can be overridden
-    uvicorn.run(app, host="0.0.0.0", port=port)
