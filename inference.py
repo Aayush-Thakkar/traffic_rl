@@ -11,7 +11,7 @@ ENV_URL      = os.getenv("ENV_URL", "http://127.0.0.1:7860")
 
 # --- API KEY VALIDATION ---
 if not HF_TOKEN:
-    raise SystemExit("[ERROR] HF_TOKEN is not set. Export your API key before running inference.")
+    print("[WARN] HF_TOKEN is not set. LLM calls will fall back to argmax.", flush=True)
 
 client = OpenAI(api_key=HF_TOKEN, base_url=API_BASE_URL)
 
@@ -30,12 +30,20 @@ def log_end(success: bool, steps: int, rewards: List[float]):
 
 # --- ENV CALLS ---
 def reset_env():
-    res = requests.post(f"{ENV_URL}/reset")
-    return res.json()
+    try:
+        res = requests.post(f"{ENV_URL}/reset", timeout=30)
+        return res.json()
+    except Exception as e:
+        print(f"[ERROR] Could not connect to environment at {ENV_URL}: {e}", flush=True)
+        raise
 
 def step_env(lane: int):
-    res = requests.post(f"{ENV_URL}/step", json={"action": {"lane": lane}})
-    return res.json()
+    try:
+        res = requests.post(f"{ENV_URL}/step", json={"action": {"lane": lane}}, timeout=30)
+        return res.json()
+    except Exception as e:
+        print(f"[ERROR] Step failed: {e}", flush=True)
+        raise
 
 # --- LLM AGENT ---
 def ask_llm(observation: dict) -> int:
