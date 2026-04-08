@@ -37,5 +37,5 @@ tasks:
     max_steps: 100
 
 server:
-  port: 7860
+  port: 8000
   framework: fastapi

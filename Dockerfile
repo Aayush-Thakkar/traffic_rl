@@ -16,8 +16,8 @@ RUN pip install --no-cache-dir --timeout=300 -r requirements.txt
 # Copy entire project
 COPY . .
 
-# Expose port 7860 (required for HuggingFace Spaces)
-EXPOSE 7860
+# Expose port 8000 (required by OpenEnv validator)
+EXPOSE 8000
 
 # Run the server
-CMD ["uvicorn", "traffic_env.server.app:app", "--host", "0.0.0.0", "--port", "7860"]
+CMD ["uvicorn", "traffic_env.server.app:app", "--host", "0.0.0.0", "--port", "8000"]
