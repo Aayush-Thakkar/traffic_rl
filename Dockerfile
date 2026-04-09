@@ -20,4 +20,4 @@ COPY . .
 EXPOSE 8000
 
 # PORT env var is set by HuggingFace to 7860, defaults to 8000 for validator
-CMD ["sh", "-c", "uvicorn traffic_env.server.app:app --host 0.0.0.0 --port ${PORT:-8000}"]
+CMD ["./start.sh"]
